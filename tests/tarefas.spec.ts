@@ -1,7 +1,6 @@
 import { test, expect, type APIRequestContext, type Page } from "@playwright/test";
 import { TAMANHO_PAGINA } from "../src/lib/paginacao";
 
-// Títulos com timestamp para o teste não colidir com dados de execuções anteriores.
 const sufixo = Date.now();
 
 test("cria, edita e exclui uma tarefa", async ({ page }) => {

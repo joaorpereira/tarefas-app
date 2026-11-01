@@ -3,8 +3,6 @@ import { ZodError } from "zod";
 
 const t = initTRPC.create({
   errorFormatter({ shape, error }) {
-    // Por padrão o tRPC devolve o JSON bruto do Zod como mensagem.
-    // Aqui o usuário recebe a primeira mensagem de validação, já em português.
     if (error.cause instanceof ZodError) {
       return {
         ...shape,

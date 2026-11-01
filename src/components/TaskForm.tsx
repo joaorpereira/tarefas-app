@@ -25,7 +25,6 @@ export function TaskForm({
 }: Props) {
   const [titulo, setTitulo] = useState(valoresIniciais?.titulo ?? "");
   const [descricao, setDescricao] = useState(valoresIniciais?.descricao ?? "");
-  // A mensagem de campo só aparece depois que o usuário mexe no campo ou tenta enviar.
   const [tocado, setTocado] = useState(false);
 
   const tamanhoTitulo = titulo.trim().length;

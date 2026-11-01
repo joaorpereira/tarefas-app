@@ -3,12 +3,9 @@ import { TAMANHO_PAGINA } from "@/lib/paginacao";
 import { createCaller } from "@/server/caller";
 import { TaskList } from "./TaskList";
 
-// A lista vive em memória no servidor. Sem force-dynamic, o Next pré-renderizaria
-// a página no build, com a store vazia, e mostraria dados desatualizados.
 export const dynamic = "force-dynamic";
 
 export default async function TarefasPage() {
-  // SSR: a lista chega pronta no HTML, sem uma segunda requisição ao carregar.
   const api = createCaller({});
   const primeiraPagina = await api.tarefas.list({ limit: TAMANHO_PAGINA });
 

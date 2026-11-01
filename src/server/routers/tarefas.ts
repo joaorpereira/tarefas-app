@@ -23,7 +23,6 @@ const idSchema = z.object({
   id: z.string().min(1, "Identificador inválido."),
 });
 
-// Centraliza o erro de "não encontrada" para list-by-id, update e delete.
 function buscarOuFalhar(id: string): Tarefa {
   const tarefa = tarefas.get(id);
   if (!tarefa) {
@@ -35,7 +34,6 @@ function buscarOuFalhar(id: string): Tarefa {
   return tarefa;
 }
 
-// Mais recentes primeiro. O id desempata duas tarefas criadas no mesmo instante.
 function compararTarefas(a: Tarefa, b: Tarefa) {
   const porData = b.dataCriacao.localeCompare(a.dataCriacao);
   if (porData !== 0) return porData;
@@ -46,8 +44,6 @@ function cursorDe(tarefa: Tarefa) {
   return `${tarefa.dataCriacao}|${tarefa.id}`;
 }
 
-// O cursor é a última tarefa já vista. Se ela foi excluída, seguimos pela data,
-// para a página seguinte não pular nem repetir o resto da lista.
 function posicaoAposCursor(ordenadas: Tarefa[], cursor: string) {
   const exata = ordenadas.findIndex((tarefa) => cursorDe(tarefa) === cursor);
   if (exata !== -1) return exata + 1;
@@ -108,7 +104,6 @@ export const tarefasRouter = router({
     .input(idSchema.extend({ titulo: tituloSchema, descricao: descricaoSchema }))
     .mutation(({ input }) => {
       const atual = buscarOuFalhar(input.id);
-      // dataCriacao não muda na edição.
       const atualizada: Tarefa = {
         ...atual,
         titulo: input.titulo,

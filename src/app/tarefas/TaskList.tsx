@@ -16,7 +16,6 @@ const consulta = { limit: TAMANHO_PAGINA };
 
 export function TaskList({ initialPage }: { initialPage: PaginaInicial }) {
   const utils = trpc.useUtils();
-  // O cache sobrevive à navegação. Sem isto, a lista nova do servidor perde para páginas antigas.
   const snapshotServidor = useRef<PaginaInicial | null>(null);
   if (snapshotServidor.current !== initialPage) {
     snapshotServidor.current = initialPage;
