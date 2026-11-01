@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TAMANHO_PAGINA } from "@/lib/paginacao";
 import { createCaller } from "@/server/caller";
 import { TaskList } from "./TaskList";
 
@@ -9,7 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function TarefasPage() {
   // SSR: a lista chega pronta no HTML, sem uma segunda requisição ao carregar.
   const api = createCaller({});
-  const tarefas = await api.tarefas.list();
+  const primeiraPagina = await api.tarefas.list({ limit: TAMANHO_PAGINA });
 
   return (
     <>
@@ -22,7 +23,7 @@ export default async function TarefasPage() {
           Nova tarefa
         </Link>
       </header>
-      <TaskList initialData={tarefas} />
+      <TaskList initialPage={primeiraPagina} />
     </>
   );
 }

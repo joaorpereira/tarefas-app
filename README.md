@@ -30,7 +30,7 @@ npm run test:e2e
 
 ## Decisões
 
-- Sem bônus de infinite scroll: o escopo foi mantido enxuto para o núcleo ficar bem feito.
+- A lista é paginada: a primeira página vem no SSR e as seguintes entram ao chegar no fim da tela.
 - `dataCriacao` é uma string ISO. Assim o JSON atravessa o tRPC sem precisar de superjson.
 - A página de listagem é dinâmica (`force-dynamic`), para sempre mostrar o estado atual da memória.
 

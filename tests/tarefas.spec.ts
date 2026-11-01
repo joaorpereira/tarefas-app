@@ -1,4 +1,5 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type APIRequestContext, type Page } from "@playwright/test";
+import { TAMANHO_PAGINA } from "../src/lib/paginacao";
 
 // Títulos com timestamp para o teste não colidir com dados de execuções anteriores.
 const sufixo = Date.now();
@@ -53,6 +54,50 @@ test("não envia o formulário sem título", async ({ page }) => {
   await expect(page.getByText("Informe um título para a tarefa.")).toBeVisible();
   await expect(page).toHaveURL("/tarefas/nova");
 });
+
+async function criarTarefa(request: APIRequestContext, titulo: string) {
+  const resposta = await request.post("/api/trpc/tarefas.create?batch=1", {
+    data: { "0": { titulo, descricao: "Página extra do teste." } },
+  });
+  const corpo = await resposta.json();
+  return corpo[0].result.data.id as string;
+}
+
+async function excluirTarefa(request: APIRequestContext, id: string) {
+  await request.post("/api/trpc/tarefas.delete?batch=1", {
+    data: { "0": { id } },
+  });
+}
+
+test("carrega a próxima página ao chegar no fim da lista", async ({ page, request }) => {
+  const prefixo = `Scroll ${Date.now()}`;
+  const ids: string[] = [];
+
+  try {
+    for (let i = 0; i < TAMANHO_PAGINA + 1; i += 1) {
+      ids.push(await criarTarefa(request, `${prefixo} ${i}`));
+    }
+
+    const maisAntiga = `${prefixo} 0`;
+    const segundaPagina = page.waitForRequest((req) => {
+      const url = decodeURIComponent(req.url());
+      return url.includes("/api/trpc/tarefas.list") && url.includes("cursor");
+    });
+
+    await page.goto("/tarefas");
+    await chegarNoFim(page);
+    await segundaPagina;
+    await expect(page.getByRole("listitem").filter({ hasText: maisAntiga })).toBeVisible();
+  } finally {
+    await Promise.all(ids.map((id) => excluirTarefa(request, id)));
+  }
+});
+
+async function chegarNoFim(page: Page) {
+  const sentinel = page.locator("[data-sentinel]");
+  if ((await sentinel.count()) === 0) return;
+  await sentinel.scrollIntoViewIfNeeded();
+}
 
 test("mostra erro ao editar uma tarefa que não existe", async ({ page }) => {
   await page.goto("/tarefas/id-que-nao-existe/editar");
