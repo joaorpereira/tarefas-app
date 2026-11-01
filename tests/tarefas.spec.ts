@@ -24,7 +24,16 @@ test("cria, edita e exclui uma tarefa", async ({ page }) => {
   await page.getByRole("button", { name: "Salvar alterações" }).click();
 
   await expect(page).toHaveURL("/tarefas");
-  await expect(page.getByText(`${titulo} (editada)`)).toBeVisible();
+  await expect(page.getByRole("listitem").filter({ hasText: `${titulo} (editada)` })).toBeVisible();
+
+  await page
+    .getByRole("listitem")
+    .filter({ hasText: `${titulo} (editada)` })
+    .getByRole("link", { name: "Editar" })
+    .click();
+  await expect(page.getByLabel("Título")).toHaveValue(`${titulo} (editada)`);
+  await page.getByRole("link", { name: "Cancelar" }).click();
+  await expect(page).toHaveURL("/tarefas");
 
   page.once("dialog", (dialog) => dialog.accept());
   await page
@@ -34,7 +43,7 @@ test("cria, edita e exclui uma tarefa", async ({ page }) => {
     .click();
 
   await expect(page.getByRole("status").filter({ hasText: "excluída" })).toBeVisible();
-  await expect(page.getByText(`${titulo} (editada)`)).toHaveCount(0);
+  await expect(page.getByRole("listitem").filter({ hasText: `${titulo} (editada)` })).toHaveCount(0);
 });
 
 test("não envia o formulário sem título", async ({ page }) => {
@@ -48,5 +57,5 @@ test("não envia o formulário sem título", async ({ page }) => {
 test("mostra erro ao editar uma tarefa que não existe", async ({ page }) => {
   await page.goto("/tarefas/id-que-nao-existe/editar");
 
-  await expect(page.getByRole("alert")).toContainText("Tarefa não encontrada");
+  await expect(page.getByRole("alert").filter({ hasText: "Tarefa não encontrada" })).toBeVisible();
 });

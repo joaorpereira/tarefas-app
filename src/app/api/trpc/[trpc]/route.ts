@@ -6,6 +6,9 @@ const handler = (req: Request) =>
     endpoint: "/api/trpc",
     req,
     router: appRouter,
+    responseMeta() {
+      return { headers: { "cache-control": "no-store" } };
+    },
   });
 
 export { handler as GET, handler as POST };

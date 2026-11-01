@@ -1,14 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
 import { trpc } from "@/trpc/client";
 import type { Tarefa } from "@/server/store";
 import { useToast } from "@/components/Toast";
 
 export function TaskList({ initialData }: { initialData: Tarefa[] }) {
-  // initialData vem do SSR, então o primeiro render já tem as tarefas.
-  const { data: tarefas } = trpc.tarefas.list.useQuery(undefined, { initialData });
   const utils = trpc.useUtils();
+  const snapshotServidor = useRef<Tarefa[] | null>(null);
+  if (snapshotServidor.current !== initialData) {
+    snapshotServidor.current = initialData;
+    utils.tarefas.list.setData(undefined, initialData);
+  }
+
+  const { data: tarefas } = trpc.tarefas.list.useQuery(undefined, { initialData });
   const mostrar = useToast();
 
   const excluir = trpc.tarefas.delete.useMutation({

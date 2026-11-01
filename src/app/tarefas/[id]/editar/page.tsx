@@ -16,17 +16,18 @@ export default function EditarTarefaPage() {
 
   const atualizar = trpc.tarefas.update.useMutation({
     onSuccess: async (atualizada) => {
+      utils.tarefas.byId.setData({ id }, atualizada);
       await utils.tarefas.list.invalidate();
       mostrar(`Alterações salvas em "${atualizada.titulo}".`);
       router.push("/tarefas");
     },
   });
 
-  if (tarefa.isPending) {
+  if (tarefa.isPending || !tarefa.isFetchedAfterMount) {
     return <p className="text-stone-600">Carregando tarefa...</p>;
   }
 
-  if (tarefa.error) {
+  if (tarefa.isError) {
     return (
       <div className="space-y-4">
         <p role="alert" className="text-red-700">
